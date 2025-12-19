@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Truyện GitHub</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .story-card { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; cursor: pointer; }
+        .story-card:hover { background-color: #f9f9f9; }
+        #reader { display: none; }
+        .back-btn { margin-bottom: 20px; display: inline-block; padding: 5px 10px; background: #333; color: #fff; text-decoration: none; cursor: pointer;}
+    </style>
+</head>
+<body>
+
+    <div id="home">
+        <h1>Danh sách Truyện Hot</h1>
+        <div id="story-list">Đang tải...</div>
+    </div>
+
+    <div id="reader">
+        <div class="back-btn" onclick="goHome()"> Quay lại</div>
+        <h1 id="chap-title"></h1>
+        <div id="chap-content" style="line-height: 1.6; font-size: 18px;"></div>
+    </div>
+
+    <script>
+        let allData = {};
+
+        // 1. Tải dữ liệu khi vào web
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                allData = data;
+                renderList();
+            });
+
+        // 2. Hiển thị danh sách truyện
+        function renderList() {
+            const listDiv = document.getElementById('story-list');
+            listDiv.innerHTML = '';
+            
+            allData.stories.forEach(story => {
+                const html = `
+                    <div class="story-card" onclick="readStory(${story.id})">
+                        <h3>${story.title}</h3>
+                        <p>Tác giả: ${story.author}</p>
+                    </div>
+                `;
+                listDiv.innerHTML += html;
+            });
+        }
+
+        // 3. Mở truyện để đọc (Mặc định đọc chương 1)
+        function readStory(id) {
+            const chapters = allData.chapters[id];
+            if(chapters && chapters.length > 0) {
+                // Ẩn trang chủ, hiện trang đọc
+                document.getElementById('home').style.display = 'none';
+                document.getElementById('reader').style.display = 'block';
+                
+                // Hiển thị nội dung
+                document.getElementById('chap-title').innerText = chapters[0].title;
+                document.getElementById('chap-content').innerText = chapters[0].content;
+            } else {
+                alert("Truyện này chưa có nội dung!");
+            }
+        }
+
+        // 4. Quay lại trang chủ
+        function goHome() {
+            document.getElementById('home').style.display = 'block';
+            document.getElementById('reader').style.display = 'none';
+        }
+    </script>
+</body>
+  </html>
+  
